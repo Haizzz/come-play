@@ -4,19 +4,25 @@ import message from './messages';
 
 const PREFIX = 'come-play-tron-'
 
+const PlayerList = ({ players }: {players: string[]}) => {
+  return <div>Players: {players.join(', ')}</div>
+}
+
 const Tron = () => {
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const [players, setPlayers] = React.useState<string[]>([])
   const network = new Network(PREFIX)
   network.onConnect(() => {
     const intro: message = { type: 'introduction', value: { name: network.id.replace(PREFIX, ''), timestamp: Date.now() }}
     network.send(intro)
   })
-  network.receive((d: message) => {
-    console.log(d)
-    switch (d.type) {
+  network.receive((msg: message) => {
+    console.log(msg)
+    switch (msg.type) {
       case 'introduction':
-        console.log(`introduction by ${d.value.name}`)
-        console.log(`ping: ${Date.now() - d.value.timestamp}`)
+        console.log(`introduction by ${msg.value.name}`)
+        console.log(`ping: ${Date.now() - msg.value.timestamp}`)
+        setPlayers([...players, msg.value.name])
         break;
     
       default:
@@ -34,6 +40,7 @@ const Tron = () => {
     <label>Connect with: </label>
     <input ref={inputRef}></input>
     <button onClick={handleOnClick}>Connect</button>
+    <PlayerList players={players}/>
   </>
 };
 
