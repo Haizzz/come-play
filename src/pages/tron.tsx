@@ -1,10 +1,10 @@
 import * as React from "react";
-import Tron from '../games/tron'
+import Tron from "../games/tron";
 
-const PREFIX = 'come-play-test-'
+const PREFIX = "come-play-test-";
 
 const IndexPage = () => {
-  return <Tron/>
+  return <Tron />;
 };
 
 export default IndexPage;

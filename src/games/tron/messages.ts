@@ -2,15 +2,15 @@
 
 type message =
   | {
-      type: 'introduction'
+      type: "introduction";
       value: {
-        name: string
-        timestamp: number
-      }
+        name: string;
+        timestamp: number;
+      };
     }
   | {
-      type: 'asdf'
-      value: {}
-    }
+      type: "asdf";
+      value: {};
+    };
 
-export default message
+export default message;
