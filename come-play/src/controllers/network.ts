@@ -7,12 +7,14 @@ export class Network {
   id: string
   peer: Peer
   connections: Peer.DataConnection[]
+  dataHandlers: ((data: any) => void)[]
 
   constructor(prefix = 'come-play-') {
     const uuid = uuidv4() as string
     this.id = `${prefix}${uuid.substring(0, 5)}`
     this.peer = new Peer(this.id)
     this.connections = []
+    this.dataHandlers = []
     this.registerDefaultPeerHandlers()
   }
 
@@ -41,16 +43,20 @@ export class Network {
     conn.on('open', this.handleOpen)
     conn.on('close', this.handleClose)
     conn.on('error', this.handleError)
+    this.dataHandlers.forEach((handler) => {
+      conn.on('data', handler)
+    })
   }
 
-  connect(id) {
+  connect(id, setup?: () => void) {
     const conn = this.peer.connect(id)
-    console.log(conn)
     this.registerNewConnection(conn)
+    if (setup) conn.on('open', setup)
   }
 
-  on(handler: () => void) {
+  receive(handler: (data: any) => void) {
     // register a data handler for all connections
+    this.dataHandlers.push(handler)
     this.connections.forEach((conn) => {
       conn.on('data', handler)
     })
@@ -58,6 +64,7 @@ export class Network {
 
   send(data: any) {
     // send data to all connections
+    console.log('sending')
     this.connections.forEach((conn) => {
       conn.send(data)
     })

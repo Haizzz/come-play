@@ -6,9 +6,15 @@ const PREFIX = 'come-play-test-'
 const IndexPage = () => {
   const inputRef = React.useRef<HTMLInputElement>(null)
   const network = new Network(PREFIX)
+  network.receive((d) => {
+    console.log(d)
+  })
   const handleOnClick = (e) => {
     if (inputRef === null || inputRef.current === null) return
-    network.connect(`${PREFIX}${inputRef.current.value}`)
+    network.connect(`${PREFIX}${inputRef.current.value}`, () => {
+      // once connected, send a hello
+      network.send('hello from ' + network.id)
+    })
   }
 
   return <>
