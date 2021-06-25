@@ -48,4 +48,18 @@ export class Network {
     console.log(conn)
     this.registerNewConnection(conn)
   }
+
+  on(handler: () => void) {
+    // register a data handler for all connections
+    this.connections.forEach((conn) => {
+      conn.on('data', handler)
+    })
+  }
+
+  send(data: any) {
+    // send data to all connections
+    this.connections.forEach((conn) => {
+      conn.send(data)
+    })
+  }
 }
