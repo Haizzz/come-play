@@ -7,6 +7,7 @@ export class Network {
   id: string
   peer: Peer
   connections: Peer.DataConnection[]
+  openHandlers: (() => void)[]
   dataHandlers: ((data: any) => void)[]
 
   constructor(prefix = 'come-play-') {
@@ -14,6 +15,7 @@ export class Network {
     this.id = `${prefix}${uuid.substring(0, 5)}`
     this.peer = new Peer(this.id)
     this.connections = []
+    this.openHandlers = []
     this.dataHandlers = []
     this.registerDefaultPeerHandlers()
   }
@@ -27,6 +29,7 @@ export class Network {
 
   private handleOpen() {
     console.log('new connection created')
+    this.openHandlers.forEach((h) => h())
   }
 
   private handleClose() {
@@ -40,7 +43,7 @@ export class Network {
 
   private registerNewConnection(conn: Peer.DataConnection) {
     this.connections.push(conn)
-    conn.on('open', this.handleOpen)
+    conn.on('open', () => this.handleOpen())
     conn.on('close', this.handleClose)
     conn.on('error', this.handleError)
     this.dataHandlers.forEach((handler) => {
@@ -48,10 +51,14 @@ export class Network {
     })
   }
 
-  connect(id, setup?: () => void) {
+  onConnect(handler: () => void) {
+    // register a handler when someone connect to us
+    this.openHandlers.push(handler)
+  }
+
+  connect(id) {
     const conn = this.peer.connect(id)
     this.registerNewConnection(conn)
-    if (setup) conn.on('open', setup)
   }
 
   receive(handler: (data: any) => void) {
